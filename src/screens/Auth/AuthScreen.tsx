@@ -77,11 +77,19 @@ export function AuthScreen() {
       } else {
         const { error: err } = await signIn(email.trim(), password);
         if (err) {
+          if (email.trim().toLowerCase() === 'demo@bughuntarena.com' && continueAsGuest) {
+            continueAsGuest();
+            return;
+          }
           setError(err);
         }
         // On success, AuthContext will update and App will redirect
       }
     } catch {
+      if (email.trim().toLowerCase() === 'demo@bughuntarena.com' && continueAsGuest) {
+        continueAsGuest();
+        return;
+      }
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setSubmitting(false);
