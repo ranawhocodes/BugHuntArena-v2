@@ -58,10 +58,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const apiKey =
-    process.env.LLM_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  const configuredModel = process.env.LLM_MODEL || 'gemini-1.5-flash';
+    process.env.GEMINI_API_KEY ||
+    process.env.LLM_API_KEY ||
+    process.env.GOOGLE_API_KEY;
+  const configuredModel = process.env.LLM_MODEL || 'gemini-2.5-flash';
   // The model name is interpolated into the request URL, so only allow plain identifiers
-  const model = MODEL_NAME_RE.test(configuredModel) ? configuredModel : 'gemini-1.5-flash';
+  const model = MODEL_NAME_RE.test(configuredModel) ? configuredModel : 'gemini-2.5-flash';
 
   const { language, difficulty } = parseGenerateRequest(req.body);
   const audience =
@@ -147,7 +149,16 @@ Return ONLY valid JSON matching this structure:
       });
     }
 
-    const data = await response.json();
+    interface GeminiResponse {
+      candidates?: Array<{
+        content?: {
+          parts?: Array<{
+            text?: string;
+          }>;
+        };
+      }>;
+    }
+    const data = (await response.json()) as GeminiResponse;
     const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!candidateText) {

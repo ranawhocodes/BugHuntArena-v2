@@ -9,7 +9,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_NAME_LENGTH = 40;
 
 export function AuthScreen() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, continueAsGuest, isLocalMode } = useAuth();
   const [mode, setMode] = useState<Mode>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -236,6 +236,26 @@ export function AuthScreen() {
             }
           </button>
         </form>
+
+        {/* Guest access option */}
+        <div className="auth-divider">
+          <span className="auth-divider__text">OR</span>
+        </div>
+
+        <button
+          type="button"
+          className="auth-guest-btn"
+          onClick={() => continueAsGuest?.()}
+        >
+          <PixelIcon name="flash" size={16} />
+          <span>Play as Guest (Instant Access)</span>
+        </button>
+
+        {isLocalMode && (
+          <p className="auth-local-notice">
+            Offline mode active: hunter progress is saved locally in your browser.
+          </p>
+        )}
 
         {/* Footer toggle */}
         <p className="auth-footer">

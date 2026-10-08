@@ -1,0 +1,5 @@
+{
+  "name": "BugWug",
+  "description": "An arena where AI creates the bugs and the learner hunts them down. Practice debugging Python and JavaScript in a fun, gamified experience.",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

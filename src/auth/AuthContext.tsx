@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
 interface AuthContextValue {
@@ -9,22 +9,60 @@ interface AuthContextValue {
   signUp: (email: string, password: string, name?: string) => Promise<{ error: string | null; session: Session | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  continueAsGuest?: () => void;
+  isLocalMode?: boolean;
+}
+
+const LOCAL_STORAGE_USER_KEY = 'bugwug_auth_user';
+
+function createLocalUser(email: string, name?: string): User {
+  const userName = name?.trim() || email.split('@')[0] || 'Hunter';
+  return {
+    id: `local-${encodeURIComponent(email).replace(/[^a-zA-Z0-9]/g, '_')}`,
+    app_metadata: { provider: 'local' },
+    user_metadata: { name: userName },
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+    email,
+    role: 'authenticated',
+    updated_at: new Date().toISOString(),
+  };
+}
+
+function getInitialLocalUser(): User | null {
+  if (typeof window === 'undefined' || isSupabaseConfigured) return null;
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+    if (stored) return JSON.parse(stored) as User;
+  } catch {
+    // ignore storage error
+  }
+  return null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(getInitialLocalUser);
+  const [loading, setLoading] = useState<boolean>(() => isSupabaseConfigured);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: s } }) => {
+        setSession(s);
+        setUser(s?.user ?? null);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
 
     // Listen for auth changes
     const {
@@ -38,7 +76,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const continueAsGuest = () => {
+    const guestUser = createLocalUser('guest@bugwug.local', 'Code Ranger');
+    try {
+      localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(guestUser));
+    } catch {
+      // ignore
+    }
+    setUser(guestUser);
+  };
+
   const signUp = async (email: string, password: string, name?: string) => {
+    if (!isSupabaseConfigured) {
+      const trimmedName = name?.trim();
+      const localUser = createLocalUser(email, trimmedName);
+      try {
+        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(localUser));
+      } catch {
+        // ignore
+      }
+      setUser(localUser);
+      return { error: null, session: null };
+    }
+
     const trimmedName = name?.trim();
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -50,17 +110,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      const localUser = createLocalUser(email);
+      try {
+        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(localUser));
+      } catch {
+        // ignore
+      }
+      setUser(localUser);
+      return { error: null };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
     return { error: null };
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      try {
+        localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+      } catch {
+        // ignore
+      }
+      setUser(null);
+      return;
+    }
     await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        signUp,
+        signIn,
+        signOut,
+        continueAsGuest,
+        isLocalMode: !isSupabaseConfigured,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
