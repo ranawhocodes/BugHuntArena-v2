@@ -18,7 +18,7 @@ const steps = [
   { name: '7. npm audit', cmd: 'npm audit --omit=dev --audit-level=high' },
 ];
 
-console.log('🔒 Bug Hunt Arena — Presubmit Gate\n');
+console.log('🔒 BugWug — Presubmit Gate\n');
 
 let allPassed = true;
 

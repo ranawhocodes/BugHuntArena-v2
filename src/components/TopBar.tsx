@@ -1,4 +1,6 @@
 import { ThemeToggle } from './ThemeToggle';
+import { PixelIcon } from './PixelIcon';
+import type { PixelIconName } from './PixelIcon';
 import { useAuth } from '../auth/AuthContext';
 import type { Route } from '../app/router';
 import './TopBar.css';
@@ -10,7 +12,16 @@ export interface TopBarProps {
   level?: number;
   xp?: number;
   bugBits?: number;
+  /** Optional sign-out handler (e.g. to save progress first); defaults to auth sign-out. */
+  onSignOut?: () => void;
 }
+
+const NAV_ITEMS: { route: Route; label: string; ariaLabel: string; icon: PixelIconName }[] = [
+  { route: '/play', label: 'Arena', ariaLabel: 'Arena', icon: 'search-bug' },
+  { route: '/daily', label: 'Daily', ariaLabel: 'Daily Challenge', icon: 'calendar' },
+  { route: '/pet', label: 'Pet', ariaLabel: 'Pet Den', icon: 'dog' },
+  { route: '/profile', label: 'Profile', ariaLabel: 'Hunter Profile', icon: 'hunter' },
+];
 
 export function TopBar({
   currentRoute,
@@ -18,6 +29,7 @@ export function TopBar({
   streakDays = 0,
   level = 1,
   bugBits = 50,
+  onSignOut,
 }: TopBarProps) {
   const { signOut, user } = useAuth();
 
@@ -30,12 +42,12 @@ export function TopBar({
             type="button"
             className="bha-topbar__logo"
             onClick={() => onNavigate('/')}
-            aria-label="Bug Hunt Arena — Home"
+            aria-label="BugWug — Home"
           >
             <span className="bha-topbar__logo-icon" aria-hidden="true">
-              🐛
+              <PixelIcon name="bug" size={21} />
             </span>
-            <span className="bha-topbar__logo-title">Bug Hunt Arena</span>
+            <span className="bha-topbar__logo-title">BugWug</span>
           </button>
         </div>
 
@@ -46,7 +58,7 @@ export function TopBar({
             title={`${streakDays} Day Streak`}
             aria-label={`${streakDays} Day Streak`}
           >
-            <span className="bha-stat-pill__icon" aria-hidden="true">🔥</span>
+            <PixelIcon name="flame" size={16} className="bha-stat-pill__icon" />
             <span className="bha-stat-pill__val">{streakDays}</span>
           </div>
 
@@ -55,7 +67,7 @@ export function TopBar({
             title={`Level ${level}`}
             aria-label={`Level ${level}`}
           >
-            <span className="bha-stat-pill__icon" aria-hidden="true">⭐</span>
+            <PixelIcon name="star" size={16} className="bha-stat-pill__icon" />
             <span className="bha-stat-pill__val">Lv.{level}</span>
           </div>
 
@@ -64,7 +76,7 @@ export function TopBar({
             title={`${bugBits} Bug Bits`}
             aria-label={`${bugBits} Bug Bits`}
           >
-            <span className="bha-stat-pill__icon" aria-hidden="true">🪙</span>
+            <PixelIcon name="coin" size={16} className="bha-stat-pill__icon" />
             <span className="bha-stat-pill__val">{bugBits}</span>
           </div>
         </div>
@@ -72,58 +84,23 @@ export function TopBar({
         {/* Right: Navigation + Theme Toggle */}
         <div className="bha-topbar__right">
           <nav className="bha-topbar__nav" aria-label="Main navigation">
-            <button
-              type="button"
-              className={`bha-topbar__nav-link ${
-                currentRoute === '/play' ? 'bha-topbar__nav-link--active' : ''
-              }`}
-              onClick={() => onNavigate('/play')}
-              aria-current={currentRoute === '/play' ? 'page' : undefined}
-              aria-label="Arena"
-              title="Arena"
-            >
-              <span aria-hidden="true">⚔️</span>
-              <span className="bha-topbar__nav-label">Arena</span>
-            </button>
-            <button
-              type="button"
-              className={`bha-topbar__nav-link ${
-                currentRoute === '/daily' ? 'bha-topbar__nav-link--active' : ''
-              }`}
-              onClick={() => onNavigate('/daily')}
-              aria-current={currentRoute === '/daily' ? 'page' : undefined}
-              aria-label="Daily Challenge"
-              title="Daily Challenge"
-            >
-              <span aria-hidden="true">📅</span>
-              <span className="bha-topbar__nav-label">Daily</span>
-            </button>
-            <button
-              type="button"
-              className={`bha-topbar__nav-link ${
-                currentRoute === '/pet' ? 'bha-topbar__nav-link--active' : ''
-              }`}
-              onClick={() => onNavigate('/pet')}
-              aria-current={currentRoute === '/pet' ? 'page' : undefined}
-              aria-label="Pet Den"
-              title="Pet Den"
-            >
-              <span aria-hidden="true">🐾</span>
-              <span className="bha-topbar__nav-label">Pet</span>
-            </button>
-            <button
-              type="button"
-              className={`bha-topbar__nav-link ${
-                currentRoute === '/profile' ? 'bha-topbar__nav-link--active' : ''
-              }`}
-              onClick={() => onNavigate('/profile')}
-              aria-current={currentRoute === '/profile' ? 'page' : undefined}
-              aria-label="Hunter Profile"
-              title="Hunter Profile"
-            >
-              <span aria-hidden="true">👤</span>
-              <span className="bha-topbar__nav-label">Profile</span>
-            </button>
+            {NAV_ITEMS.map((item) => {
+              const isActive = currentRoute === item.route;
+              return (
+                <button
+                  key={item.route}
+                  type="button"
+                  className={`bha-topbar__nav-link ${isActive ? 'bha-topbar__nav-link--active' : ''}`}
+                  onClick={() => onNavigate(item.route)}
+                  aria-current={isActive ? 'page' : undefined}
+                  aria-label={item.ariaLabel}
+                  title={item.ariaLabel}
+                >
+                  <PixelIcon name={item.icon} className="bha-topbar__nav-icon" />
+                  <span className="bha-topbar__nav-label">{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
           <ThemeToggle />
@@ -132,11 +109,11 @@ export function TopBar({
             <button
               type="button"
               className="bha-topbar__signout"
-              onClick={() => signOut()}
+              onClick={() => (onSignOut ? onSignOut() : signOut())}
               aria-label="Sign out"
               title={`Sign out (${user.email ?? ''})`}
             >
-              <span aria-hidden="true">🚪</span>
+              <PixelIcon name="exit" />
             </button>
           )}
         </div>

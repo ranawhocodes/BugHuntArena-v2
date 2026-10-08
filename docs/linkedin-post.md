@@ -11,9 +11,9 @@ What if learning to debug code felt less like banging your head against a wall�
 
 When beginners learn Python or JavaScript, over 60% of their time is lost staring at obscure syntax errors and off-by-one loops. Most tutorials either dump overwhelming multi-file codebases or instantly spoil the answer.
 
-That's why I built **Bug Hunt Arena** — where AI crafts the bugs and you hunt them down! 🏟️
+That's why I built **BugWug** — where AI crafts the bugs and you hunt them down! 🏟️
 
-Here is how Bug Hunt Arena tackles the 3 biggest challenges in beginner coding education:
+Here is how BugWug tackles the 3 biggest challenges in beginner coding education:
 
 1️⃣ **Fair & Fun Gameplay:**
 Every program in the Arena has *exactly one bug* on a single line. Compare expected logs directly against broken terminal output, click the guilty line, and choose the tactical fix to capture named bug creatures (like *Sliceworm*, *Indexo*, and *Scopegeist*) into your collection!

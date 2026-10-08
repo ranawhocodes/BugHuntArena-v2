@@ -46,14 +46,20 @@ export const PET_MAX_STROKES_PER_DAY = 3;
 /** Pet sleepy threshold in milliseconds (24 hours) */
 export const PET_SLEEPY_THRESHOLD_MS = 24 * 60 * 60 * 1000;
 
-/** Storage key */
-export const STORAGE_KEY = 'bha:v1';
+/** Per-account storage key prefix; the user id is appended */
+export const STORAGE_KEY_PREFIX = 'bugwug:v1:';
+
+/** Pre-accounts global key, shared across users of one browser — purged on login */
+export const LEGACY_STORAGE_KEY = 'bha:v1';
 
 /** Max storage blob size in bytes */
 export const MAX_STORAGE_BYTES = 200 * 1024;
 
 /** Storage write debounce in milliseconds */
 export const STORAGE_DEBOUNCE_MS = 300;
+
+/** Puzzles in one Daily Hunt */
+export const DAILY_PUZZLE_COUNT = 3;
 
 /** Daily history prune limit (days) */
 export const DAILY_HISTORY_LIMIT = 60;

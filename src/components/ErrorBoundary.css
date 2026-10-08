@@ -11,13 +11,22 @@
 }
 
 .bha-error-boundary__icon {
-  font-size: 3.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--border-strong);
+  color: var(--warning);
 }
 
 .bha-error-boundary__title {
   font-size: var(--text-2xl);
+  font-weight: 800;
   color: var(--text);
   margin: 0;
+  text-wrap: balance;
 }
 
 .bha-error-boundary__desc {

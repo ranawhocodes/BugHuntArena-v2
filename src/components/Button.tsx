@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { PixelIcon } from './PixelIcon';
 import './Button.css';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -36,7 +37,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <span className="bha-btn__spinner" aria-hidden="true" />
+          <span className="bha-btn__spinner" aria-hidden="true">
+            <PixelIcon name="loader" size={16} />
+          </span>
         ) : (
           icon && <span className="bha-btn__icon" aria-hidden="true">{icon}</span>
         )}

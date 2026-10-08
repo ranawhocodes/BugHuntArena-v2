@@ -22,7 +22,7 @@ export interface ValidationResult {
 }
 
 /**
- * Pure validator function for Bug Hunt Arena puzzles.
+ * Pure validator function for BugWug puzzles.
  * Checks all constraints specified in the design doc.
  */
 export function validatePuzzle(puzzle: BugPuzzle): ValidationResult {

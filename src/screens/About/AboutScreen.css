@@ -1,62 +1,93 @@
 .about-screen {
-  max-width: 840px;
+  max-width: 880px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-10);
 }
 
+/* ---- Page header ---- */
 .about-header {
-  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border);
 }
 
 .about-title {
-  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
   margin-top: var(--space-2);
+}
+
+.screen h1.about-title {
+  margin-bottom: 0;
 }
 
 .about-subtitle {
   color: var(--text-muted);
   font-size: 1.0625rem;
   line-height: 1.6;
-  max-width: 580px;
+  max-width: 36rem;
 }
 
 .about-content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-10);
 }
 
 .about-section h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   margin-bottom: var(--space-4);
   color: var(--text);
 }
 
+.about-section h2::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--signal);
+  flex-shrink: 0;
+}
+
+/* ---- Pillars: ruled columns ---- */
 .about-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 2px solid var(--text);
+}
+
+.about-cards-grid > .bha-card {
+  background: transparent;
+  border: none;
+  padding: var(--space-5) var(--space-5) var(--space-2) 0;
+}
+
+.about-cards-grid > .bha-card + .bha-card {
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--border);
 }
 
 .about-card__icon {
-  font-size: 1.75rem;
-  margin-bottom: var(--space-2);
+  display: flex;
+  color: var(--signal-text);
+  margin-bottom: var(--space-5);
 }
 
 .about-cards-grid h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin-bottom: var(--space-2);
   color: var(--text);
 }
@@ -67,38 +98,53 @@
   line-height: 1.6;
 }
 
-/* Shortcuts */
+.about-cards-grid strong {
+  color: var(--text);
+}
+
+/* ---- Shortcuts: ruled rows with pixel keycaps ---- */
 .shortcuts-grid {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
 }
 
 .shortcut-row {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-2);
   font-size: var(--text-sm);
-  padding: 8px 12px;
-  background: var(--surface-2);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 12px 0;
+}
+
+.shortcut-row + .shortcut-row {
+  border-top: 1px solid var(--border);
 }
 
 kbd {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-family: var(--font-code);
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 1px 0 var(--border);
-  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 3px;
+  border-radius: 0;
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
 }
 
 .shortcut-row span {
   color: var(--text-muted);
+  margin-left: auto;
+  text-align: right;
 }
 
 .about-tech-summary {
@@ -109,4 +155,26 @@ kbd {
 
 .about-tech-summary strong {
   color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .about-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-cards-grid > .bha-card,
+  .about-cards-grid > .bha-card + .bha-card {
+    padding: var(--space-5) 0;
+    border-left: none;
+  }
+
+  .about-cards-grid > .bha-card + .bha-card {
+    border-top: 1px solid var(--border);
+  }
+
+  .shortcut-row span {
+    margin-left: 0;
+    width: 100%;
+    text-align: left;
+  }
 }

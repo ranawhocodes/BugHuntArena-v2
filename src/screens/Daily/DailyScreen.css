@@ -6,67 +6,95 @@
   margin: 0 auto;
 }
 
+/* ---- Page header ---- */
 .bha-daily__header {
-  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border);
 }
 
 .bha-daily__title {
-  font-size: var(--text-3xl);
+  font-size: clamp(2rem, 4.5vw, var(--text-3xl));
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
   margin-top: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.screen h1.bha-daily__title {
+  margin-bottom: 0;
 }
 
 .bha-daily__subtitle {
   color: var(--text-muted);
   font-size: var(--text-base);
+  max-width: 36rem;
 }
 
-/* Steps Grid */
+/* ---- Steps: three numbered slots ---- */
 .bha-daily__steps-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .bha-daily-step-card {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
   padding: var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-card);
   cursor: pointer;
   outline: none;
-  transition: all var(--duration-fast) var(--ease-out);
 }
 
-.bha-daily-step-card:hover {
+.bha-daily-step-card:not(.bha-card--highlight):hover {
   border-color: var(--border-strong);
-  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+
+.bha-daily-step-card:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .bha-daily-step-card--done {
-  border-color: rgba(0, 229, 153, 0.4);
-  background: rgba(0, 229, 153, 0.06);
+  border-color: color-mix(in srgb, var(--success) 45%, transparent);
 }
 
 .bha-daily-step-card__num {
-  font-family: var(--font-code);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  font-family: var(--font-pixel);
   font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--primary);
-  width: 32px;
-  text-align: center;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.bha-card--highlight .bha-daily-step-card__num {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--on-signal);
+}
+
+.bha-daily-step-card--done .bha-daily-step-card__num {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 45%, transparent);
+  background: transparent;
 }
 
 .bha-daily-step-card__info {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .bha-daily-step-card__title {
@@ -77,29 +105,35 @@
 }
 
 .bha-daily-step-card__lang {
-  font-family: var(--font-code);
-  font-size: 0.6875rem;
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
-/* Completed Card */
+/* ---- Completed ---- */
 .bha-daily__completed-card {
-  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-4);
-  padding: var(--space-10) var(--space-6);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  padding: var(--space-8);
+}
+
+.bha-daily__completed-card h2 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
 .bha-daily__completed-icon {
-  font-size: 3.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  background: var(--signal);
+  color: var(--on-signal);
 }
 
 .bha-daily__completed-desc {
@@ -110,14 +144,15 @@
 }
 
 .bha-daily__share-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
 }
 
 .bha-daily__score-preview {
@@ -127,7 +162,7 @@
   color: var(--text);
 }
 
-/* Active Puzzle */
+/* ---- Active puzzle ---- */
 .bha-daily__active-puzzle {
   display: flex;
   flex-direction: column;
@@ -138,12 +173,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.bha-daily__puzzle-header h3 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .bha-daily__shields {
   display: flex;
   gap: 4px;
-  font-size: 1.25rem;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+}
+
+.bha-daily__shield {
+  color: var(--signal-text);
+}
+
+.bha-daily__shield--lost {
+  color: var(--text-dim);
+  opacity: 0.35;
 }
 
 .bha-daily__brief p {
@@ -151,6 +202,30 @@
   font-size: var(--text-sm);
 }
 
+.bha-daily__brief strong {
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--signal-text);
+  margin-right: var(--space-2);
+}
+
+.bha-daily__feedback {
+  min-height: 1.25rem;
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.bha-daily__feedback:empty {
+  display: none;
+}
+
+/* ---- Workspace layout (IDE zone geometry — unchanged) ---- */
 .bha-daily__workspace-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;

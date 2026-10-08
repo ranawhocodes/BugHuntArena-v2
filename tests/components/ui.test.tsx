@@ -93,7 +93,7 @@ describe('UI Components', () => {
         />,
       );
 
-      expect(screen.getByText('Bug Hunt Arena')).toBeInTheDocument();
+      expect(screen.getByText('BugWug')).toBeInTheDocument();
       expect(screen.getByText('5')).toBeInTheDocument();
       expect(screen.getByText('Lv.2')).toBeInTheDocument();
       expect(screen.getByText('100')).toBeInTheDocument();

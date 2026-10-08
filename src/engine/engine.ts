@@ -10,6 +10,7 @@ import {
   LEVEL_TITLES,
 } from './constants';
 import type { Difficulty, BugPuzzle } from '../content/types';
+import type { ExperienceLevel } from '../storage/schema';
 
 export interface XpResult {
   baseXp: number;
@@ -215,4 +216,46 @@ export function getDailyPuzzles(
   }
 
   return [pool[0], pool[1], pool[2]];
+}
+
+/**
+ * Difficulty order for a learner's self-reported experience.
+ * New debuggers start on Easy and graduate to Medium; experienced debuggers start on
+ * Medium (and Hard, when available) and keep Easy for warm-ups at the end.
+ */
+export function trackDifficulties(experience: ExperienceLevel | undefined): Difficulty[] {
+  return experience === 'experienced' ? [2, 3, 1] : [1, 2, 3];
+}
+
+/** Puzzles ordered for a track: preferred difficulty first, original order kept within a tier. */
+export function orderPuzzlesForTrack(
+  puzzles: BugPuzzle[],
+  experience: ExperienceLevel | undefined,
+): BugPuzzle[] {
+  const order = trackDifficulties(experience);
+  return [...puzzles].sort((a, b) => order.indexOf(a.difficulty) - order.indexOf(b.difficulty));
+}
+
+/**
+ * Pool for the Daily Hunt: the track's core difficulty when there are enough puzzles,
+ * otherwise the full bank so the daily always has three distinct picks.
+ */
+export function dailyPoolForTrack(
+  puzzles: BugPuzzle[],
+  experience: ExperienceLevel | undefined,
+): BugPuzzle[] {
+  const core = trackDifficulties(experience)[0];
+  const pool = puzzles.filter((p) => p.difficulty === core);
+  return pool.length >= 3 ? pool : puzzles;
+}
+
+/** Difficulty to request from the AI generator for a track. */
+export function aiDifficultyFor(experience: ExperienceLevel | undefined): Difficulty {
+  return experience === 'experienced' ? 3 : 1;
+}
+
+/** Index of the first unsolved puzzle in a list, or 0 when everything is solved. */
+export function firstUnsolvedIndex(puzzles: BugPuzzle[], completedIds: string[]): number {
+  const idx = puzzles.findIndex((p) => !completedIds.includes(p.id));
+  return idx === -1 ? 0 : idx;
 }

@@ -1,10 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { loadSaveData, saveData, clearSaveData } from '../storage/storage';
+import {
+  loadSaveData,
+  saveData,
+  clearSaveData,
+  purgeLegacySave,
+  sanitizeSaveData,
+} from '../storage/storage';
 import { loadCloudSave, saveCloudData, clearCloudSave } from '../storage/cloudSync';
 import { createInitialPlayerState } from '../storage/schema';
-import type { PlayerSaveData, PetState } from '../storage/schema';
+import type { PlayerSaveData, PetState, ExperienceLevel } from '../storage/schema';
 import type { BugCategory } from '../content/types';
-import { PET_FEED_COST, PET_FEED_COOLDOWN_MS, PET_MAX_STROKES_PER_DAY } from '../engine/constants';
+import {
+  PET_FEED_COST,
+  PET_FEED_COOLDOWN_MS,
+  PET_MAX_STROKES_PER_DAY,
+  DAILY_HISTORY_LIMIT,
+  DAILY_PUZZLE_COUNT,
+} from '../engine/constants';
 import { updateStreak } from '../engine/engine';
 import { useAuth } from '../auth/AuthContext';
 
@@ -12,6 +24,7 @@ interface AppStateContextValue {
   state: PlayerSaveData;
   syncing: boolean;
   setPlayerName: (name: string) => void;
+  setExperience: (experience: ExperienceLevel) => void;
   recordPuzzleCompletion: (
     puzzleId: string,
     creatureId: string,
@@ -20,10 +33,13 @@ interface AppStateContextValue {
     bitsEarned: number,
     cleanCatch: boolean,
   ) => void;
+  recordDailyClear: (date: string, puzzleId: string) => void;
   feedPet: () => { success: boolean; message: string };
   strokePet: () => { success: boolean; message: string };
   setPetCosmetic: (cosmetic: PetState['cosmetic']) => void;
   resetProgress: () => void;
+  /** Writes the latest progress to the cloud immediately (used before signing out). */
+  flushCloudSave: () => Promise<void>;
 }
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
@@ -31,81 +47,94 @@ const AppStateContext = createContext<AppStateContextValue | null>(null);
 /** Debounce interval for cloud saves (ms) */
 const CLOUD_SAVE_DEBOUNCE = 2000;
 
+/**
+ * Progress is always stored together with the id of the account it belongs to,
+ * so one user's data can never be written into another user's local cache or cloud row.
+ */
+interface OwnedState {
+  ownerId: string | null;
+  data: PlayerSaveData;
+}
+
+function today(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [state, setState] = useState<PlayerSaveData>(() => loadSaveData());
-  const [syncing, setSyncing] = useState(false);
-  const cloudSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const initialLoadDone = useRef(false);
+  const userId = user?.id ?? null;
+  const metadataName = (user?.user_metadata?.name as string | undefined)?.trim().slice(0, 40);
 
-  // Load cloud save when user logs in
+  const [store, setStore] = useState<OwnedState>(() => ({
+    ownerId: userId,
+    data: userId ? loadSaveData(userId) : createInitialPlayerState(),
+  }));
+  const [syncing, setSyncing] = useState<boolean>(Boolean(userId));
+  /** Account whose cloud save has been reconciled; cloud writes wait for this. */
+  const cloudReadyFor = useRef<string | null>(null);
+  const latest = useRef(store);
   useEffect(() => {
-    if (!user) {
-      initialLoadDone.current = false;
-      return;
-    }
+    latest.current = store;
+  }, [store]);
 
-    // Only load once per login
-    if (initialLoadDone.current) return;
+  // Reconcile this account's local cache with its cloud save. The provider is keyed by
+  // user id (see App.tsx), so a different account always gets a fresh provider.
+  useEffect(() => {
+    purgeLegacySave();
+    cloudReadyFor.current = null;
+    if (!userId) return;
 
     let cancelled = false;
-    setSyncing(true);
 
-    const metadataName = (user.user_metadata?.name as string | undefined)?.trim();
-
-    loadCloudSave(user.id).then((cloudData) => {
+    loadCloudSave(userId).then((cloudRaw) => {
       if (cancelled) return;
 
-      if (cloudData) {
-        // Cloud data exists — ensure playerName from metadata if missing in cloudData
-        const merged: PlayerSaveData = {
-          ...cloudData,
-          ...(metadataName && !cloudData.playerName ? { playerName: metadataName } : {}),
-        };
-        setState(merged);
-        saveData(merged);
-      } else {
-        // No cloud data — push local state (with metadata name) to cloud
-        const local = loadSaveData();
-        const initialWithMeta: PlayerSaveData = {
-          ...local,
-          ...(metadataName && !local.playerName ? { playerName: metadataName } : {}),
-        };
-        setState(initialWithMeta);
-        saveData(initialWithMeta);
-        saveCloudData(user.id, initialWithMeta);
-      }
+      // Cloud data is external input: validate before trusting it.
+      const cloud = sanitizeSaveData(cloudRaw);
+      const chosen = cloud ?? loadSaveData(userId);
+      const withName =
+        metadataName && !chosen.playerName ? { ...chosen, playerName: metadataName } : chosen;
 
-      initialLoadDone.current = true;
+      setStore({ ownerId: userId, data: withName });
+      saveData(userId, withName);
+      if (!cloud) saveCloudData(userId, withName);
+
+      cloudReadyFor.current = userId;
       setSyncing(false);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [userId, metadataName]);
 
-  // Save state changes to both localStorage and cloud (debounced)
+  // Persist every change to the owner's local cache, and to the cloud (debounced).
   useEffect(() => {
-    // Always save to localStorage immediately
-    saveData(state);
+    const { ownerId, data } = store;
+    if (!ownerId) return;
 
-    // If user is logged in, also save to cloud (debounced)
-    if (user && initialLoadDone.current) {
-      if (cloudSaveTimer.current) {
-        clearTimeout(cloudSaveTimer.current);
-      }
-      cloudSaveTimer.current = setTimeout(() => {
-        saveCloudData(user.id, state);
-      }, CLOUD_SAVE_DEBOUNCE);
+    saveData(ownerId, data);
+    if (cloudReadyFor.current !== ownerId) return;
+
+    const timer = setTimeout(() => {
+      saveCloudData(ownerId, data);
+    }, CLOUD_SAVE_DEBOUNCE);
+    return () => clearTimeout(timer);
+  }, [store]);
+
+  const update = useCallback((fn: (prev: PlayerSaveData) => PlayerSaveData) => {
+    setStore((prev) => {
+      const next = fn(prev.data);
+      return next === prev.data ? prev : { ...prev, data: next };
+    });
+  }, []);
+
+  const flushCloudSave = useCallback(async () => {
+    const { ownerId, data } = latest.current;
+    if (ownerId && cloudReadyFor.current === ownerId) {
+      await saveCloudData(ownerId, data);
     }
-
-    return () => {
-      if (cloudSaveTimer.current) {
-        clearTimeout(cloudSaveTimer.current);
-      }
-    };
-  }, [state, user]);
+  }, []);
 
   const recordPuzzleCompletion = useCallback(
     (
@@ -116,13 +145,13 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       bitsEarned: number,
       cleanCatch: boolean,
     ) => {
-      setState((prev) => {
-        const today = new Date().toISOString().split('T')[0];
+      update((prev) => {
+        const date = today();
         const streakResult = updateStreak(
           prev.lastActiveDate,
           prev.streakDays,
           prev.streakFreezes,
-          today,
+          date,
         );
 
         const newCompleted = prev.completedPuzzleIds.includes(puzzleId)
@@ -151,7 +180,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           bugBits: prev.bugBits + bitsEarned,
           streakDays: streakResult.newStreak,
           streakFreezes: streakResult.freezesLeft,
-          lastActiveDate: today,
+          lastActiveDate: date,
           completedPuzzleIds: newCompleted,
           capturedCreatureIds: newCreatures,
           categoryStats: {
@@ -161,13 +190,36 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         };
       });
     },
-    [],
+    [update],
+  );
+
+  const recordDailyClear = useCallback(
+    (date: string, puzzleId: string) => {
+      update((prev) => {
+        const cleared =
+          prev.dailyProgress?.date === date ? prev.dailyProgress.clearedPuzzleIds : [];
+        if (cleared.includes(puzzleId)) return prev;
+
+        const nextCleared = [...cleared, puzzleId];
+        const finishedToday =
+          nextCleared.length >= DAILY_PUZZLE_COUNT && !prev.dailyCompletedDates.includes(date);
+
+        return {
+          ...prev,
+          dailyProgress: { date, clearedPuzzleIds: nextCleared },
+          dailyCompletedDates: finishedToday
+            ? [...prev.dailyCompletedDates, date].slice(-DAILY_HISTORY_LIMIT)
+            : prev.dailyCompletedDates,
+        };
+      });
+    },
+    [update],
   );
 
   const feedPet = useCallback((): { success: boolean; message: string } => {
     let result = { success: false, message: '' };
 
-    setState((prev) => {
+    update((prev) => {
       if (prev.bugBits < PET_FEED_COST) {
         result = { success: false, message: `Need ${PET_FEED_COST} Bug Bits to feed pet.` };
         return prev;
@@ -192,14 +244,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     });
 
     return result;
-  }, []);
+  }, [update]);
 
   const strokePet = useCallback((): { success: boolean; message: string } => {
     let result = { success: false, message: '' };
 
-    setState((prev) => {
-      const today = new Date().toISOString().split('T')[0];
-      const isNewDay = prev.pet.lastStrokeDate !== today;
+    update((prev) => {
+      const date = today();
+      const isNewDay = prev.pet.lastStrokeDate !== date;
       const currentStrokes = isNewDay ? 0 : prev.pet.strokesToday;
 
       if (currentStrokes >= PET_MAX_STROKES_PER_DAY) {
@@ -215,50 +267,61 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           ...prev.pet,
           happiness: Math.min(100, prev.pet.happiness + 5),
           strokesToday: currentStrokes + 1,
-          lastStrokeDate: today,
+          lastStrokeDate: date,
         },
       };
     });
 
     return result;
-  }, []);
+  }, [update]);
 
-  const setPetCosmetic = useCallback((cosmetic: PetState['cosmetic']) => {
-    setState((prev) => ({
-      ...prev,
-      pet: {
-        ...prev.pet,
-        cosmetic,
-      },
-    }));
-  }, []);
+  const setPetCosmetic = useCallback(
+    (cosmetic: PetState['cosmetic']) => {
+      update((prev) => ({ ...prev, pet: { ...prev.pet, cosmetic } }));
+    },
+    [update],
+  );
 
-  const setPlayerName = useCallback((name: string) => {
-    setState((prev) => ({
-      ...prev,
-      playerName: name.trim(),
-    }));
-  }, []);
+  const setPlayerName = useCallback(
+    (name: string) => {
+      update((prev) => ({ ...prev, playerName: name.trim().slice(0, 40) }));
+    },
+    [update],
+  );
+
+  const setExperience = useCallback(
+    (experience: ExperienceLevel) => {
+      update((prev) => (prev.experience === experience ? prev : { ...prev, experience }));
+    },
+    [update],
+  );
 
   const resetProgress = useCallback(() => {
-    clearSaveData();
-    if (user) {
-      clearCloudSave(user.id);
-    }
-    setState(createInitialPlayerState());
-  }, [user]);
+    if (!userId) return;
+    clearSaveData(userId);
+    clearCloudSave(userId);
+    // Keep who they are (name, chosen track); clear everything they've earned.
+    update((prev) => ({
+      ...createInitialPlayerState(),
+      ...(prev.playerName ? { playerName: prev.playerName } : {}),
+      ...(prev.experience ? { experience: prev.experience } : {}),
+    }));
+  }, [userId, update]);
 
   return (
     <AppStateContext.Provider
       value={{
-        state,
+        state: store.data,
         syncing,
         setPlayerName,
+        setExperience,
         recordPuzzleCompletion,
+        recordDailyClear,
         feedPet,
         strokePet,
         setPetCosmetic,
         resetProgress,
+        flushCloudSave,
       }}
     >
       {children}

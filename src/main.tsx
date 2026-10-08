@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './app/App';
 import './styles/tokens.css';
 import './styles/global.css';
+import './styles/ide-freeze.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');

@@ -1,30 +1,22 @@
 .bha-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   color: var(--text);
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-card);
-  transition: all var(--duration-normal) var(--ease-out);
+  transition:
+    border-color var(--duration-fast) var(--ease-pixel),
+    background-color var(--duration-fast) var(--ease-pixel);
 }
 
+/* Formerly glassmorphism — now a quiet, slightly see-through panel over the pixel grid */
 .bha-card--glass {
-  background: rgba(18, 26, 51, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-[data-theme='light'] .bha-card--glass {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(201, 211, 245, 0.6);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 8px 32px 0 rgba(10, 107, 214, 0.08);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
 }
 
 .bha-card--highlight {
-  border-color: var(--primary);
-  box-shadow: var(--glow-primary);
+  border-color: var(--signal);
+  --tick-color: var(--signal);
 }
 
 .bha-card--interactive {
@@ -32,9 +24,13 @@
 }
 
 .bha-card--interactive:hover {
-  transform: translateY(-2px);
-  border-color: rgba(61, 220, 255, 0.35);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 0 0 16px -2px rgba(61, 220, 255, 0.15);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+  --tick-color: var(--signal);
+}
+
+.bha-card--interactive:active {
+  transform: translate(1px, 1px);
 }
 
 /* Padding scale */

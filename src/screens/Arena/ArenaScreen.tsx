@@ -10,7 +10,14 @@ import type { PetMood } from '../../components/PetCompanion';
 import { Button } from '../../components/Button';
 import { Badge } from '../../components/Badge';
 import { Card } from '../../components/Card';
-import { calculateXP, calculateBugBits } from '../../engine/engine';
+import { PixelIcon } from '../../components/PixelIcon';
+import {
+  calculateXP,
+  calculateBugBits,
+  orderPuzzlesForTrack,
+  firstUnsolvedIndex,
+  aiDifficultyFor,
+} from '../../engine/engine';
 import type { XpResult } from '../../engine/engine';
 import { useAppState } from '../../app/AppState';
 import { requestBugPuzzle } from '../../ai/generator';
@@ -35,7 +42,14 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
   const { state, recordPuzzleCompletion } = useAppState();
 
   const [language, setLanguage] = useState<Language>(() => initialLanguage || parseInitialLanguage());
-  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  // Puzzles in the order that suits the learner's track; resume at the first unsolved one
+  const trackPuzzles = useCallback(
+    (lang: Language) => orderPuzzlesForTrack(getPuzzlesByLanguage(lang), state.experience),
+    [state.experience],
+  );
+  const [puzzleIndex, setPuzzleIndex] = useState(() =>
+    firstUnsolvedIndex(trackPuzzles(language), state.completedPuzzleIds),
+  );
   const [customAiPuzzle, setCustomAiPuzzle] = useState<BugPuzzle | null>(null);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [bugReported, setBugReported] = useState(false);
@@ -58,8 +72,10 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
   const [lastXpResult, setLastXpResult] = useState<XpResult | null>(null);
   const [lastBitsEarned, setLastBitsEarned] = useState<number>(0);
 
-  const puzzles = useMemo(() => getPuzzlesByLanguage(language), [language]);
+  const puzzles = useMemo(() => trackPuzzles(language), [trackPuzzles, language]);
   const currentPuzzle: BugPuzzle = customAiPuzzle || puzzles[puzzleIndex] || puzzles[0];
+  const solvedCount = puzzles.filter((p) => state.completedPuzzleIds.includes(p.id)).length;
+  const isSolved = !customAiPuzzle && state.completedPuzzleIds.includes(currentPuzzle.id);
 
   const resetForPuzzle = useCallback(() => {
     setPhase('FIND_LINE');
@@ -77,7 +93,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
   const handleLanguageChange = (newLang: Language) => {
     if (newLang !== language) {
       setLanguage(newLang);
-      setPuzzleIndex(0);
+      setPuzzleIndex(firstUnsolvedIndex(trackPuzzles(newLang), state.completedPuzzleIds));
       setCustomAiPuzzle(null);
       resetForPuzzle();
       window.location.hash = `#/play?lang=${newLang}`;
@@ -89,24 +105,30 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
       const hash = window.location.hash || '';
       if (hash.includes('lang=javascript') && language !== 'javascript') {
         setLanguage('javascript');
-        setPuzzleIndex(0);
+        setPuzzleIndex(firstUnsolvedIndex(trackPuzzles('javascript'), state.completedPuzzleIds));
         setCustomAiPuzzle(null);
         resetForPuzzle();
       } else if (hash.includes('lang=python') && language !== 'python') {
         setLanguage('python');
-        setPuzzleIndex(0);
+        setPuzzleIndex(firstUnsolvedIndex(trackPuzzles('python'), state.completedPuzzleIds));
         setCustomAiPuzzle(null);
         resetForPuzzle();
       }
     };
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
-  }, [language, resetForPuzzle]);
+  }, [language, resetForPuzzle, trackPuzzles, state.completedPuzzleIds]);
 
   const handleNextPuzzle = () => {
     setCustomAiPuzzle(null);
-    const nextIdx = (puzzleIndex + 1) % puzzles.length;
-    setPuzzleIndex(nextIdx);
+    // Prefer the next unsolved puzzle; fall back to simple rotation once all are solved
+    const ahead = [...puzzles.slice(puzzleIndex + 1), ...puzzles.slice(0, puzzleIndex + 1)];
+    const nextUnsolved = ahead.find(
+      (p) => p.id !== currentPuzzle.id && !state.completedPuzzleIds.includes(p.id),
+    );
+    setPuzzleIndex(
+      nextUnsolved ? puzzles.indexOf(nextUnsolved) : (puzzleIndex + 1) % puzzles.length,
+    );
     resetForPuzzle();
   };
 
@@ -114,7 +136,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
     setIsGeneratingAi(true);
     setBugReported(false);
     try {
-      const res = await requestBugPuzzle(language, 1);
+      const res = await requestBugPuzzle(language, aiDifficultyFor(state.experience));
       setCustomAiPuzzle(res.puzzle);
       resetForPuzzle();
       setAnnouncement(res.message || 'Spawned fresh AI bug puzzle!');
@@ -125,7 +147,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
 
   const handleReportBug = () => {
     setBugReported(true);
-    setAnnouncement('Bug reported. Thank you for making Bug Hunt Arena better!');
+    setAnnouncement('Bug reported. Thank you for making BugWug better!');
     setTimeout(() => handleNextPuzzle(), 1200);
   };
 
@@ -200,7 +222,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
   };
 
   return (
-    <div className="bha-arena screen" role="main">
+    <div className="bha-arena screen">
       {/* ARIA Live Region for screen readers */}
       <div className="sr-only" role="status" aria-live="polite">
         {announcement}
@@ -216,7 +238,8 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
             className={`bha-lang-tab ${language === 'python' ? 'bha-lang-tab--active' : ''}`}
             onClick={() => handleLanguageChange('python')}
           >
-            🐍 Python ({getPuzzlesByLanguage('python').length})
+            Python
+            <span className="bha-lang-tab__count">{getPuzzlesByLanguage('python').length}</span>
           </button>
           <button
             type="button"
@@ -225,7 +248,8 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
             className={`bha-lang-tab ${language === 'javascript' ? 'bha-lang-tab--active' : ''}`}
             onClick={() => handleLanguageChange('javascript')}
           >
-            ⚡ JavaScript ({getPuzzlesByLanguage('javascript').length})
+            JavaScript
+            <span className="bha-lang-tab__count">{getPuzzlesByLanguage('javascript').length}</span>
           </button>
         </div>
 
@@ -236,13 +260,15 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
             size="sm"
             onClick={handleGenerateAi}
             isLoading={isGeneratingAi}
-            icon={<span aria-hidden="true">✨</span>}
+            icon={<PixelIcon name="robot" />}
             title="Generate a dynamic AI bug using Google Gemini"
           >
             AI Spawn
           </Button>
           <span className="bha-puzzle-nav__counter">
-            {customAiPuzzle ? 'AI Challenge' : `Puzzle ${puzzleIndex + 1} of ${puzzles.length}`}
+            {customAiPuzzle
+              ? 'AI Challenge'
+              : `Puzzle ${puzzleIndex + 1} of ${puzzles.length} · ${solvedCount} solved`}
           </span>
           <Button
             variant="ghost"
@@ -250,7 +276,8 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
             onClick={handleNextPuzzle}
             title="Skip to next puzzle"
           >
-            Skip ➔
+            Skip
+            <PixelIcon name="arrow-right" size={16} className="bha-skip-arrow" />
           </Button>
         </div>
       </div>
@@ -261,7 +288,8 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
           <div className="bha-arena__badges">
             {customAiPuzzle && (
               <Badge variant="accent" size="sm">
-                ✨ AI Generated
+                <PixelIcon name="robot" size={14} />
+                AI Generated
               </Badge>
             )}
             <Badge variant={language === 'python' ? 'python' : 'js'} size="sm">
@@ -286,6 +314,12 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
             <Badge variant="primary" size="sm">
               {currentPuzzle.category.replace('_', ' ')}
             </Badge>
+            {isSolved && (
+              <Badge variant="success" size="sm">
+                <PixelIcon name="check" size={14} />
+                Solved
+              </Badge>
+            )}
             {customAiPuzzle && (
               <button
                 type="button"
@@ -293,7 +327,8 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
                 className="bha-report-link"
                 title="Report broken AI puzzle"
               >
-                {bugReported ? 'Reported ✓' : '🚩 Report Bug'}
+                <PixelIcon name={bugReported ? 'check' : 'flag'} size={14} />
+                {bugReported ? 'Reported' : 'Report Bug'}
               </button>
             )}
           </div>
@@ -303,15 +338,14 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
         {/* Shields & Hint Status */}
         <div className="bha-arena__status">
           <div className="bha-shields" aria-label={`${shields} out of 3 shields remaining`}>
-            <span className="bha-shields__label">Shields:</span>
+            <span className="bha-shields__label">Shields</span>
             {[1, 2, 3].map((shieldNum) => (
-              <span
+              <PixelIcon
                 key={shieldNum}
+                name="shield"
+                size={21}
                 className={`bha-shield ${shieldNum <= shields ? 'bha-shield--active' : 'bha-shield--lost'}`}
-                aria-hidden="true"
-              >
-                {shieldNum <= shields ? '🛡️' : '🩶'}
-              </span>
+              />
             ))}
           </div>
 
@@ -320,7 +354,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
             size="sm"
             onClick={handleUseHint}
             disabled={hintsUsed >= 3 || phase === 'REVEAL'}
-            icon={<span aria-hidden="true">💡</span>}
+            icon={<PixelIcon name="bulb" />}
           >
             Hint ({hintsUsed}/3)
           </Button>
@@ -345,7 +379,9 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
       {/* Active Hint Callout (if used) */}
       {activeHintIndex !== null && (
         <div className="bha-hint-callout" role="alert">
-          <span className="bha-hint-callout__icon" aria-hidden="true">💡</span>
+          <span className="bha-hint-callout__icon" aria-hidden="true">
+            <PixelIcon name="bulb" />
+          </span>
           <div className="bha-hint-callout__body">
             <strong>Hint {activeHintIndex + 1} (Tier {activeHintIndex + 1}):</strong>{' '}
             {currentPuzzle.hints[activeHintIndex]}
@@ -378,7 +414,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
                 size="md"
                 onClick={handleConfirmLine}
                 disabled={selectedLine === null}
-                icon={<span aria-hidden="true">🎯</span>}
+                icon={<PixelIcon name="target" />}
               >
                 Confirm Line {selectedLine ? `#${selectedLine}` : ''}
               </Button>
@@ -407,7 +443,7 @@ export function ArenaScreen({ initialLanguage }: ArenaScreenProps = {}) {
                   size="md"
                   onClick={handleConfirmFix}
                   disabled={!selectedOptionId}
-                  icon={<span aria-hidden="true">✨</span>}
+                  icon={<PixelIcon name="hammer" />}
                 >
                   Deploy Fix
                 </Button>

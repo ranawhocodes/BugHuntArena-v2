@@ -15,9 +15,13 @@ export function Card({
   className = '',
   ...props
 }: CardProps) {
+  const corners = variant === 'interactive' || variant === 'highlight' ? 'px-corners' : '';
+
   return (
     <Component
-      className={`bha-card bha-card--${variant} bha-card--pad-${padding} ${className}`.trim()}
+      className={`bha-card bha-card--${variant} bha-card--pad-${padding} ${corners} ${className}`
+        .replace(/\s+/g, ' ')
+        .trim()}
       {...props}
     >
       {children}

@@ -1,6 +1,7 @@
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Badge } from './Badge';
+import { PixelIcon } from './PixelIcon';
 import type { BugPuzzle } from '../content/types';
 import type { XpResult } from '../engine/engine';
 import './CreatureReveal.css';
@@ -39,7 +40,7 @@ export function CreatureReveal({
           <Button variant="secondary" onClick={onClose}>
             Review Arena
           </Button>
-          <Button variant="primary" onClick={onNext} icon={<span aria-hidden="true">➔</span>}>
+          <Button variant="primary" onClick={onNext} icon={<PixelIcon name="arrow-right" />}>
             Next Hunt
           </Button>
         </div>
@@ -74,14 +75,14 @@ export function CreatureReveal({
           <div className="bha-reward-item">
             <span className="bha-reward-item__label">Bug Bits</span>
             <span className="bha-reward-item__val bha-reward-item__val--bits">
-              +{bitsEarned} 🪙
+              +{bitsEarned} <PixelIcon name="coin" size={21} />
             </span>
           </div>
           {xpResult.cleanCatch && (
             <div className="bha-reward-item">
               <span className="bha-reward-item__label">Bonus</span>
               <span className="bha-reward-item__val bha-reward-item__val--bonus">
-                Clean Catch! 🎯
+                Clean Catch! <PixelIcon name="target" size={21} />
               </span>
             </div>
           )}

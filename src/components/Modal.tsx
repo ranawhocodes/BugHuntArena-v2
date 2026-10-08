@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { PixelIcon } from './PixelIcon';
 import './Modal.css';
 
 export interface ModalProps {
@@ -111,7 +112,7 @@ export function Modal({
             onClick={onClose}
             aria-label="Close dialog"
           >
-            ✕
+            <PixelIcon name="close" />
           </button>
         </div>
 

@@ -1,5 +1,5 @@
 /**
- * Bug Hunt Arena — Content Types & Schemas
+ * BugWug — Content Types & Schemas
  * Strict TypeScript models for puzzles, options, categories, and bug creatures.
  */
 

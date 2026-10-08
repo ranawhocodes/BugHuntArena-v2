@@ -1,8 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import { PixelIcon } from '../../components/PixelIcon';
 import './AuthScreen.css';
 
 type Mode = 'signin' | 'signup';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_NAME_LENGTH = 40;
 
 export function AuthScreen() {
   const { signIn, signUp } = useAuth();
@@ -31,9 +35,18 @@ export function AuthScreen() {
       return;
     }
 
+    if (!EMAIL_RE.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
     if (mode === 'signup') {
       if (!name.trim()) {
         setError('Please enter your hunter name.');
+        return;
+      }
+      if (name.trim().length > MAX_NAME_LENGTH) {
+        setError(`Hunter name must be ${MAX_NAME_LENGTH} characters or fewer.`);
         return;
       }
       if (password.length < 6) {
@@ -50,7 +63,7 @@ export function AuthScreen() {
 
     try {
       if (mode === 'signup') {
-        const { error: err, session: newSession } = await signUp(email, password, name);
+        const { error: err, session: newSession } = await signUp(email.trim(), password, name.trim());
         if (err) {
           setError(err);
         } else if (!newSession) {
@@ -62,7 +75,7 @@ export function AuthScreen() {
         }
         // If newSession is present, onAuthStateChange immediately authenticates the user
       } else {
-        const { error: err } = await signIn(email, password);
+        const { error: err } = await signIn(email.trim(), password);
         if (err) {
           setError(err);
         }
@@ -77,15 +90,13 @@ export function AuthScreen() {
 
   return (
     <div className="auth-screen">
-      {/* Ambient glow orbs */}
-      <div className="auth-orb auth-orb--1" aria-hidden="true" />
-      <div className="auth-orb auth-orb--2" aria-hidden="true" />
-
-      <div className="auth-card">
+      <div className="auth-card px-corners">
         {/* Logo / Brand */}
         <div className="auth-brand">
-          <span className="auth-brand__icon" aria-hidden="true">🐛</span>
-          <h1 className="auth-brand__title">Bug Hunt Arena</h1>
+          <span className="auth-brand__icon" aria-hidden="true">
+            <PixelIcon name="bug" size={42} />
+          </span>
+          <h1 className="auth-brand__title">BugWug</h1>
           <p className="auth-brand__subtitle">
             {mode === 'signin' ? 'Welcome back, hunter.' : 'Join the hunt.'}
           </p>
@@ -124,6 +135,7 @@ export function AuthScreen() {
                 autoComplete="name"
                 className="auth-field__input"
                 placeholder="e.g. Code Ranger"
+                maxLength={MAX_NAME_LENGTH}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={submitting}
@@ -177,13 +189,15 @@ export function AuthScreen() {
 
           {error && (
             <div className="auth-message auth-message--error" role="alert">
-              {error}
+              <PixelIcon name="alert" size={16} className="auth-message__icon" />
+              <span>{error}</span>
             </div>
           )}
 
           {success && (
             <div className="auth-message auth-message--success" role="status">
-              {success}
+              <PixelIcon name="check" size={16} className="auth-message__icon" />
+              <span>{success}</span>
             </div>
           )}
 

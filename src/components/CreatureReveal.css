@@ -1,44 +1,50 @@
 .bha-reveal {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .bha-creature-card {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   padding: var(--space-4);
-  box-shadow: var(--shadow-card);
 }
 
 .bha-creature-card__avatar {
-  font-size: 3.25rem;
+  font-size: 3rem;
   line-height: 1;
-  padding: var(--space-3);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg-pattern) var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
 }
 
 .bha-creature-card__details {
   flex: 1;
+  min-width: 0;
 }
 
 .bha-creature-card__row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
 }
 
 .bha-creature-card__name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
@@ -56,45 +62,50 @@
   margin: 0;
 }
 
-/* Rewards Ribbon */
+/* Rewards — ruled spec cells */
 .bha-rewards-ribbon {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  background: rgba(61, 220, 255, 0.06);
-  border: 1px solid rgba(61, 220, 255, 0.2);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: 1px solid var(--border);
 }
 
 .bha-reward-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 6px;
+  padding: var(--space-3) var(--space-4);
+}
+
+.bha-reward-item + .bha-reward-item {
+  border-left: 1px solid var(--border);
 }
 
 .bha-reward-item__label {
-  font-family: var(--font-code);
-  font-size: 0.6875rem;
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
   color: var(--text-muted);
   text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .bha-reward-item__val {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 1.125rem;
-  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
-.bha-reward-item__val--xp { color: var(--primary); }
-.bha-reward-item__val--bits { color: var(--warning); }
+.bha-reward-item__val--xp { color: var(--electric-text); }
+.bha-reward-item__val--bits { color: var(--signal-text); }
 .bha-reward-item__val--bonus { color: var(--success); }
 
-/* Diff Box */
+/* Diff + post-mortem */
 .bha-diff-section {
   display: flex;
   flex-direction: column;
@@ -103,15 +114,16 @@
 
 .bha-diff-title,
 .bha-explanation-title {
-  font-family: var(--font-code);
-  font-size: 0.6875rem;
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  font-weight: 700;
   margin: 0;
 }
 
+/* ---- IDE zone: code diff box (unchanged) ---- */
 .bha-diff-box {
   background: #060a16;
   border: 1px solid var(--border);
@@ -147,13 +159,19 @@
   border-left: 3px solid var(--success);
 }
 
+.bha-explanation-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
 .bha-explanation-text {
   font-size: 0.875rem;
   color: var(--text);
   line-height: 1.6;
-  background: var(--surface);
+  background: var(--surface-2);
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   border: 1px solid var(--border);
   margin: 0;
 }
@@ -162,4 +180,15 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+}
+
+@media (max-width: 520px) {
+  .bha-rewards-ribbon {
+    grid-auto-flow: row;
+  }
+
+  .bha-reward-item + .bha-reward-item {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
 }

@@ -17,9 +17,20 @@ export interface PlayerStats {
   cleanCatches: number;
 }
 
+/** Self-reported debugging experience, asked once during onboarding. */
+export type ExperienceLevel = 'new' | 'experienced';
+
+/** Progress on one day's Daily Hunt, so a refresh never loses cleared steps. */
+export interface DailyProgress {
+  date: string; // 'YYYY-MM-DD'
+  clearedPuzzleIds: string[];
+}
+
 export interface PlayerSaveData {
   version: 1;
   playerName?: string;
+  experience?: ExperienceLevel;
+  dailyProgress?: DailyProgress;
   xp: number;
   bugBits: number;
   streakDays: number;

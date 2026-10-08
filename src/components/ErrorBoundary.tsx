@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from './Button';
+import { PixelIcon } from './PixelIcon';
 import './ErrorBoundary.css';
 
 interface Props {
@@ -26,7 +27,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="bha-error-boundary" role="alert">
           <div className="bha-error-boundary__icon" aria-hidden="true">
-            ⚠️
+            <PixelIcon name="alert" size={42} />
           </div>
           <h2 className="bha-error-boundary__title">An unexpected glitch occurred</h2>
           <p className="bha-error-boundary__desc">

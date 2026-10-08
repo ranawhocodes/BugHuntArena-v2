@@ -1,8 +1,8 @@
 .bha-theme-toggle {
-  background: var(--surface-2);
+  background: transparent;
   border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  border-radius: 0;
   width: 40px;
   height: 40px;
   min-height: 40px;
@@ -11,21 +11,25 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
+  transition:
+    color var(--duration-fast) var(--ease-pixel),
+    border-color var(--duration-fast) var(--ease-pixel);
 }
 
 .bha-theme-toggle:hover {
-  border-color: var(--primary);
-  transform: rotate(15deg);
-  background: var(--border);
+  color: var(--signal-text);
+  border-color: var(--border-strong);
+}
+
+.bha-theme-toggle:hover .bha-theme-toggle__icon {
+  transform: translateY(-2px);
 }
 
 .bha-theme-toggle:focus-visible {
-  outline: 3px solid var(--primary);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
 .bha-theme-toggle__icon {
-  font-size: 1.125rem;
-  line-height: 1;
+  transition: transform var(--duration-normal) var(--ease-pixel);
 }

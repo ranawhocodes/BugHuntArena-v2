@@ -1,5 +1,6 @@
 import { Card } from '../../components/Card';
 import { Badge } from '../../components/Badge';
+import { PixelIcon } from '../../components/PixelIcon';
 import './AboutScreen.css';
 
 export function AboutScreen() {
@@ -7,7 +8,7 @@ export function AboutScreen() {
     <div className="about-screen screen">
       <header className="about-header">
         <Badge variant="primary" size="md">Hackathon Build</Badge>
-        <h1 className="about-title">About Bug Hunt Arena</h1>
+        <h1 className="about-title">About BugWug</h1>
         <p className="about-subtitle">
           An arena where AI creates the bugs and the learner hunts them down.
         </p>
@@ -19,7 +20,9 @@ export function AboutScreen() {
           <h2 id="pillars-title">Three Core Pillars</h2>
           <div className="about-cards-grid">
             <Card variant="glass" padding="md">
-              <div className="about-card__icon" aria-hidden="true">⚖️</div>
+              <div className="about-card__icon" aria-hidden="true">
+                <PixelIcon name="scale" size={42} />
+              </div>
               <h3>1. Fair & Fun</h3>
               <p>
                 Every challenge has <strong>exactly one bug</strong> per program. We provide clear
@@ -29,7 +32,9 @@ export function AboutScreen() {
             </Card>
 
             <Card variant="glass" padding="md">
-              <div className="about-card__icon" aria-hidden="true">💡</div>
+              <div className="about-card__icon" aria-hidden="true">
+                <PixelIcon name="bulb" size={42} />
+              </div>
               <h3>2. Hints That Teach</h3>
               <p>
                 3 escalating tiers of pedagogical hints that guide thinking without giving away the
@@ -44,7 +49,9 @@ export function AboutScreen() {
             </Card>
 
             <Card variant="glass" padding="md">
-              <div className="about-card__icon" aria-hidden="true">🔥</div>
+              <div className="about-card__icon" aria-hidden="true">
+                <PixelIcon name="flame" size={42} />
+              </div>
               <h3>3. Coming Back Tomorrow</h3>
               <p>
                 Daily Hunt with deterministic daily seed, streak shields, XP level progression,

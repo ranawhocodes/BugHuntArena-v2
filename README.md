@@ -1,4 +1,4 @@
-# 🐛 Bug Hunt Arena
+# 🐛 BugWug
 
 > **Hunt bugs. Level up. Hatch legends.**
 > An arena where AI creates the bugs and the learner hunts them down.
@@ -11,11 +11,23 @@
 
 ---
 
+## ✨ What's New in BugWug
+
+- **Personalised from the first minute** — onboarding asks *“How much debugging have you done?”* (**New to debugging** / **Some experience**). The answer drives puzzle order in the Arena (Easy-first vs Medium-first), the Daily Hunt pool, and the difficulty requested from the AI generator. Learners can switch tracks any time in their Profile.
+- **Every account sees only its own data** — progress is cached per user id (`bugwug:v1:<userId>`), the app state is keyed by account, the old shared browser key is purged, and all local/cloud save data is validated and normalised before use. Supabase RLS isolates rows server-side.
+- **Resume where you left off** — the Arena opens on your first unsolved puzzle, shows `n solved`, marks solved puzzles, and *Next Hunt* jumps to the next unsolved one.
+- **Daily Hunt that survives a refresh** — cleared steps are saved per day and synced, with spoken + visible feedback on every attempt.
+- **Skill Breakdown** — Profile lists every bug category you have solved with its clean-catch rate, weakest first, so you know what to practise.
+- **Safe sign-out** — from the top bar or Profile; the latest progress is flushed to the cloud before the session ends.
+- **Pixel design system** — square, editorial UI with the Streamline *Pixel* icon set (CC BY 4.0); the code workspace keeps its original look.
+
+---
+
 ## 🌟 The Core Vision
 
 Beginners learning to code spend over 60% of their time stuck on obscure syntax errors, off-by-one loops, and type mismatches. Most platforms just give the answer away or present overwhelming, multi-file codebases.
 
-**Bug Hunt Arena** turns debugging into a tactical creature-hunting game. Tailored for school students and first-year beginners in **Python** and **JavaScript**, every challenge is designed around three fundamental answers to the hackathon challenge:
+**BugWug** turns debugging into a tactical creature-hunting game. Tailored for school students and first-year beginners in **Python** and **JavaScript**, every challenge is designed around three fundamental answers to the hackathon challenge:
 
 ### 1. Fair & Fun
 * **Single-bug guarantee:** Every program has exactly **one bug** on a single line. No confusing compound bugs.
@@ -40,7 +52,7 @@ Beginners learning to code spend over 60% of their time stuck on obscure syntax 
 Built from the ground up for speed, zero dependencies, and robust offline capability:
 
 ```
-bug-hunt-arena/
+bugwug/
 ├── api/                  # Vercel serverless function (Gemini 1.5 Flash adapter)
 ├── docs/                 # Implementation plan, progress logs, LinkedIn post
 ├── scripts/              # Guardrail scripts (check-secrets, check-repo, presubmit)
@@ -58,17 +70,17 @@ bug-hunt-arena/
 ```
 
 ### ⚡ Performance & Bundle Metrics
-- **Runtime dependencies:** Zero third-party runtime dependencies beyond `react` and `react-dom`.
-- **Client JS bundle:** ~28.9 KB gzipped (Far below the 120 KB hackathon ceiling).
-- **Client CSS bundle:** ~7.2 KB gzipped (Far below the 25 KB hackathon ceiling).
-- **Vite build time:** < 100 ms.
+- **Runtime dependencies:** `react`, `react-dom` and `@supabase/supabase-js` only.
+- **Client JS bundle:** ~165 KB gzipped (most of it is `supabase-js`; app code is small).
+- **Client CSS bundle:** ~11 KB gzipped.
+- **Vite build time:** < 1 s.
 - **Engine test coverage:** **98.2% lines / 90.9% branches** (Exceeds ≥ 80% hackathon scoring criteria).
 
 ---
 
 ## 🔐 Supabase Authentication & Cloud Progress Sync
 
-Bug Hunt Arena includes full user authentication and persistent cloud progress backed by Supabase:
+BugWug includes full user authentication and persistent cloud progress backed by Supabase:
 - **Authentication Gate:** Users and jury members can sign up with their email and password or sign in to resume their progress from any device.
 - **Continuous Cloud Sync:** Puzzles solved, levels, XP, streaks, unlocked badges, and pet states automatically sync to the database with debounced upsert operations.
 - **Row Level Security (RLS):** Every player's save state is isolated and protected with PostgreSQL RLS policies in `supabase/schema.sql`.
@@ -78,7 +90,7 @@ Bug Hunt Arena includes full user authentication and persistent cloud progress b
 
 ## 🤖 AI Bug Generation & Offline Fallback
 
-Bug Hunt Arena features a hybrid architecture:
+BugWug features a hybrid architecture:
 1. **Google Gemini Live Generation:** An optional serverless endpoint (`api/generate-bug.ts`) dynamically crafts fresh, structured coding challenges in JSON using `gemini-1.5-flash`.
 2. **Offline Curated Bank:** 24 handcrafted, verified puzzles across 10 core bug categories ensuring the platform works 100% offline or if the API key is not supplied.
 3. **Safety & Secrets:** Zero API keys are stored in client code or in the repository. The application safely runs in full functionality with or without `LLM_API_KEY`.
@@ -124,7 +136,7 @@ npm run presubmit
 2. 🌿 **Branch check:** Enforces single `main` branch policy and repo budget (< 8 MB).
 3. 🧹 **ESLint:** Strict TypeScript, React Hooks, JSX accessibility rules (`max-warnings 0`).
 4. 📐 **Typecheck:** Zero `any` types under TypeScript strict mode.
-5. 🧪 **Vitest:** 61 unit and integration tests passing.
+5. 🧪 **Vitest:** 83 unit and integration tests passing.
 6. 📦 **Production build:** Validates bundle compilation.
 7. 🛡️ **Audit:** Zero known vulnerabilities in npm dependencies.
 
@@ -132,14 +144,14 @@ npm run presubmit
 
 ## 📜 Problem Alignment & Scoring Mapping
 
-| Hackathon Criterion | Bug Hunt Arena Implementation |
+| Hackathon Criterion | BugWug Implementation |
 |---|---|
-| **Code Quality** | Strict TypeScript, ESLint `jsx-a11y`, pure functions for all formulas, zero `any`. |
-| **Security** | Zero secrets in repo, CSP headers in `vercel.json`, input validation, no `eval`. |
-| **Efficiency** | Vanilla CSS tokens, bundle < 30KB gzipped, 0 unnecessary dependencies. |
-| **Testing** | 61 tests, 98.2% engine line coverage, corruption resilience tests. |
-| **Accessibility** | Semantic HTML, roving tabindex on code lines, `aria-live` announcements, touch targets ≥ 44px. |
-| **Retention** | Daily hunt deterministic seed, streak shields, living SVG pet, 24-creature Bug Dex. |
+| **Code Quality** | Strict TypeScript (zero `any`), ESLint incl. `jsx-a11y` and React Hooks rules, pure engine functions, design tokens instead of hard-coded styles. |
+| **Security** | No secrets in the repo or client; Gemini key sent in a header (never in URLs); API body + model name validated; per-IP rate limit; internal errors never echoed; AI puzzles schema-validated; local/cloud saves sanitised; per-account storage isolation + Supabase RLS; email/name validation on sign-up. |
+| **Efficiency** | Three runtime deps; debounced cloud writes; memoised puzzle ordering; inline SVG icons (no icon font); no redundant re-fetching of saves. |
+| **Testing** | 83 tests: engine, storage resilience, **cross-account isolation**, save-data sanitisation, experience tracks, onboarding (incl. keyboard), API input guards + rate limit, components and full Arena loop. |
+| **Accessibility** | Semantic landmarks (single `main`), skip link, radio-group semantics with arrow-key support, keyboard-operable cards (Enter/Space), `aria-live` feedback, visible 2px focus rings, WCAG AA text contrast in both themes, reduced-motion support. |
+| **Problem Alignment** | Debugging practice that adapts to the learner's experience, remembers progress per account, and shows which bug types still need work. |
 
 ---
 

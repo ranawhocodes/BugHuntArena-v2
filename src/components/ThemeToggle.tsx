@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PixelIcon } from './PixelIcon';
 import './ThemeToggle.css';
 
 export function ThemeToggle() {
@@ -31,9 +32,7 @@ export function ThemeToggle() {
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
       title={`Current: ${theme} mode`}
     >
-      <span className="bha-theme-toggle__icon" aria-hidden="true">
-        {theme === 'dark' ? '🌙' : '☀️'}
-      </span>
+      <PixelIcon name={theme === 'dark' ? 'moon' : 'sun'} className="bha-theme-toggle__icon" />
     </button>
   );
 }

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Bug Hunt Arena — Supabase Database Setup
+-- BugWug — Supabase Database Setup
 -- Run this in your Supabase Project -> SQL Editor -> New Query -> Run
 -- =====================================================================
 

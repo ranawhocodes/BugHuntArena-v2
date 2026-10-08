@@ -1,4 +1,4 @@
-# Bug Hunt Arena — Progress Log
+# BugWug — Progress Log
 
 ## Brick 0: Repo Bootstrap & Guardrails
 - **Status:** Complete ✅

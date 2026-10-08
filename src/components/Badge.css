@@ -1,69 +1,77 @@
 .bha-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  font-family: var(--font-code);
-  font-weight: 600;
-  border-radius: var(--radius-sm);
+  gap: 6px;
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  border-radius: 0;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   line-height: 1;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.bha-badge .px-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .bha-badge--sm {
-  padding: 3px 7px;
-  font-size: 0.6875rem; /* 11px */
+  padding: 4px 6px;
+  font-size: var(--text-pixel-sm);
 }
 
 .bha-badge--md {
-  padding: 4px 10px;
-  font-size: var(--text-xs);
+  padding: 6px 8px;
+  font-size: var(--text-pixel-sm);
 }
 
 .bha-badge--neutral {
   background: var(--surface-2);
   color: var(--text-muted);
-  border: 1px solid var(--border);
+  border-color: var(--border);
 }
 
 .bha-badge--primary {
-  background: rgba(61, 220, 255, 0.12);
-  color: var(--primary);
-  border: 1px solid rgba(61, 220, 255, 0.3);
+  background: color-mix(in srgb, var(--signal) 12%, transparent);
+  color: var(--signal-text);
+  border-color: color-mix(in srgb, var(--signal) 45%, transparent);
 }
 
 .bha-badge--accent {
-  background: rgba(255, 77, 141, 0.12);
-  color: var(--accent);
-  border: 1px solid rgba(255, 77, 141, 0.3);
+  background: color-mix(in srgb, var(--electric) 10%, transparent);
+  color: var(--electric-text);
+  border-color: color-mix(in srgb, var(--electric) 40%, transparent);
 }
 
 .bha-badge--success {
-  background: rgba(61, 220, 151, 0.12);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
   color: var(--success);
-  border: 1px solid rgba(61, 220, 151, 0.3);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
 }
 
 .bha-badge--warning {
-  background: rgba(255, 200, 87, 0.12);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
   color: var(--warning);
-  border: 1px solid rgba(255, 200, 87, 0.3);
+  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
 }
 
 .bha-badge--danger {
-  background: rgba(255, 107, 107, 0.12);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
   color: var(--danger);
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
 }
 
+/* Language identity chips — solid brand colours, legible on both themes */
 .bha-badge--python {
-  background: rgba(53, 114, 165, 0.15);
-  color: #4b8bbe;
-  border: 1px solid rgba(75, 139, 190, 0.4);
+  background: #3572a5;
+  color: #ffffff;
+  border-color: #3572a5;
 }
 
 .bha-badge--js {
-  background: rgba(247, 223, 30, 0.15);
-  color: #f7df1e;
-  border: 1px solid rgba(247, 223, 30, 0.4);
+  background: #f7df1e;
+  color: #15140f;
+  border-color: #f7df1e;
 }

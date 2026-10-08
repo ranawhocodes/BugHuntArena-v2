@@ -1,78 +1,105 @@
 /**
- * Design Tokens — Bug Hunt Arena
+ * Design Tokens — BugWug
  * Per spec Section 6.2: define once, no hard-coded colors anywhere else.
  * Dark theme is default. Light theme is applied via [data-theme="light"].
+ *
+ * Visual language: warm carbon / cream-vellum canvases, ink hairlines, square
+ * geometry, one pixel-yellow signal colour and the original cyan kept as a rare
+ * "electric" accent for AI + XP moments. The IDE keeps its original tokens —
+ * see ide-freeze.css.
  */
 
 :root,
 [data-theme='dark'] {
   /* Backgrounds & Surfaces */
-  --bg: #070913;
-  --surface: #0D1222;
-  --surface-2: #141B30;
-  --surface-3: #1C2542;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --bg: #0e0e0c;
+  --surface: #151512;
+  --surface-2: #1c1c18;
+  --surface-3: #26261f;
+  --border: rgba(242, 239, 228, 0.11);
+  --border-subtle: rgba(242, 239, 228, 0.06);
+  --border-strong: rgba(242, 239, 228, 0.26);
+
+  /* Faint pixel grid used on large empty canvas areas */
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='2' height='2' fill='%23f2efe4' fill-opacity='0.07'/%3E%3C/svg%3E");
 
   /* Text */
-  --text: #F1F4FD;
-  --text-muted: #8E9BB8;
-  --text-dim: #5C6784;
+  --text: #f2efe4;
+  --text-muted: #a19e8f;
+  --text-dim: #8c897a; /* ≥4.5:1 on --bg */
 
-  /* Brand */
-  --primary: #3DDCFF;
-  --on-primary: #040814;
-  --accent: #FF4D8D;
+  /* Signal — pixel yellow. Fills, active states, markers. */
+  --signal: #ffd12e;
+  --signal-hover: #ffdc5c;
+  --on-signal: #13120e;
+  --signal-text: #ffd12e;
+  --focus-ring: #ffd12e;
+
+  /* Electric — rare accent (AI, XP/level) carried over from the original brand cyan */
+  --electric: #3ddcff;
+  --electric-text: #3ddcff;
+
+  /* Legacy aliases kept so every component reads one vocabulary */
+  --primary: var(--signal);
+  --on-primary: var(--on-signal);
+  --accent: var(--electric);
 
   /* Semantic */
-  --success: #00E599;
-  --warning: #FFB800;
-  --danger: #FF453A;
+  --success: #5ddb8b;
+  --warning: #ff9f43;
+  --danger: #ff5f4a;
 
-  /* Shadows & glows */
-  --glow-primary: 0 0 24px rgba(61, 220, 255, 0.25);
-  --glow-accent: 0 0 24px rgba(255, 77, 141, 0.25);
-  --glow-success: 0 0 24px rgba(0, 229, 153, 0.25);
-  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --shadow-elevated: 0 12px 36px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Depth — flat by default; only overlays get a shadow */
+  --glow-primary: none;
+  --glow-accent: none;
+  --glow-success: none;
+  --shadow-card: none;
+  --shadow-elevated: 0 24px 64px -24px rgba(0, 0, 0, 0.75);
+  --scrim: rgba(8, 8, 6, 0.78);
 }
 
 [data-theme='light'] {
-  --bg: #F7F9FC;
-  --surface: #FFFFFF;
-  --surface-2: #EEF2F8;
-  --surface-3: #E2E8F4;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-subtle: rgba(0, 0, 0, 0.04);
-  --border-strong: rgba(0, 0, 0, 0.16);
+  --bg: #f4f0e3;
+  --surface: #fbf8ee;
+  --surface-2: #ede8d8;
+  --surface-3: #e2dcc8;
+  --border: rgba(21, 20, 15, 0.14);
+  --border-subtle: rgba(21, 20, 15, 0.07);
+  --border-strong: rgba(21, 20, 15, 0.42);
 
-  --text: #0B1020;
-  --text-muted: #52607D;
-  --text-dim: #8B98B3;
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='2' height='2' fill='%2315140f' fill-opacity='0.09'/%3E%3C/svg%3E");
 
-  --primary: #0A6BD6;
-  --on-primary: #FFFFFF;
-  --accent: #D81B60;
+  --text: #15140f;
+  --text-muted: #5b584c;
+  --text-dim: #6b6759; /* ≥4.5:1 on --bg */
 
-  --success: #0B8043;
-  --warning: #9A6700;
-  --danger: #C5221F;
+  --signal: #ffd12e;
+  --signal-hover: #ffc700;
+  --on-signal: #15140f;
+  --signal-text: #7a5800;
+  --focus-ring: #15140f;
 
-  --glow-primary: 0 0 20px rgba(10, 107, 214, 0.15);
-  --glow-accent: 0 0 20px rgba(216, 27, 96, 0.15);
-  --glow-success: 0 0 20px rgba(11, 128, 67, 0.15);
-  --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --electric: #0a6bd6;
+  --electric-text: #0a6bd6;
+
+  --success: #0f7a3d;
+  --warning: #a34e00;
+  --danger: #c42b1c;
+
+  --shadow-elevated: 0 24px 64px -24px rgba(21, 20, 15, 0.35);
+  --scrim: rgba(21, 20, 15, 0.45);
 }
 
 :root {
   /* Typography */
-  --font-heading: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Archivo', system-ui, sans-serif;
+  --font-body: 'Archivo', system-ui, sans-serif;
   --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-pixel: 'Silkscreen', 'JetBrains Mono', monospace;
 
   /* Type scale */
+  --text-pixel-sm: 0.625rem; /* 10px — pixel labels */
+  --text-pixel: 0.75rem;     /* 12px — pixel labels */
   --text-xs: 0.75rem;   /* 12px */
   --text-sm: 0.875rem;  /* 14px */
   --text-base: 1rem;    /* 16px */
@@ -93,12 +120,16 @@
   --space-12: 3rem;     /* 48px */
   --space-16: 4rem;     /* 64px */
 
-  /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  /* Radii — square, pixel geometry */
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
   --radius-full: 9999px;
+
+  /* Pixel details */
+  --pixel: 2px;          /* one "screen pixel" for decorative marks */
+  --tick: 8px;           /* corner tick length */
 
   /* Motion */
   --duration-fast: 120ms;
@@ -106,6 +137,7 @@
   --duration-slow: 320ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-pixel: steps(2, end);
 
   /* Layout */
   --max-width: 1140px;

@@ -1,5 +1,5 @@
 /**
- * Global Styles — Bug Hunt Arena
+ * Global Styles — BugWug
  * Per spec Section 6.1–6.6: reset, typography, focus rings, accessibility, layout.
  */
 
@@ -22,24 +22,18 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: 1.6;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   color: var(--text);
   background-color: var(--bg);
+  /* Faint pixel grid across the top of the canvas, fading into the solid page */
   background-image:
-    radial-gradient(100% 50% at 50% -5%, rgba(61, 220, 255, 0.08), transparent 60%),
-    radial-gradient(80% 40% at 90% 50%, rgba(255, 77, 141, 0.04), transparent 60%);
-  background-attachment: fixed;
+    linear-gradient(to bottom, transparent 0, var(--bg) 760px),
+    var(--bg-pattern);
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 24px 24px;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-[data-theme='light'] body {
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(100% 50% at 50% -5%, rgba(10, 107, 214, 0.06), transparent 60%),
-    radial-gradient(80% 40% at 90% 50%, rgba(216, 27, 96, 0.03), transparent 60%);
-  background-attachment: fixed;
 }
 
 /* ---- Typography ---- */
@@ -63,7 +57,7 @@ code, pre, .code {
 
 /* ---- Links ---- */
 a {
-  color: var(--primary);
+  color: var(--signal-text);
   text-decoration: none;
 }
 
@@ -73,7 +67,7 @@ a:hover {
 
 /* ---- Focus Rings — spec Section 6.6 ---- */
 :focus-visible {
-  outline: 3px solid var(--primary);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -85,8 +79,8 @@ a:hover {
   left: var(--space-4);
   z-index: 1000;
   padding: var(--space-2) var(--space-4);
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--signal);
+  color: var(--on-signal);
   font-weight: 600;
   border-radius: var(--radius-md);
   transition: top var(--duration-fast) var(--ease-out);
@@ -96,76 +90,24 @@ a:hover {
   top: var(--space-4);
 }
 
+/* ---- Screen reader only ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---- App Shell ---- */
 .app-shell {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-}
-
-/* ---- Top Bar ---- */
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-}
-
-.logo-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: none;
-  border: none;
-  color: var(--text);
-  font-family: var(--font-heading);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  cursor: pointer;
-  min-height: var(--touch-target);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-md);
-  transition: color var(--duration-fast) var(--ease-out);
-}
-
-.logo-btn:hover {
-  color: var(--primary);
-}
-
-.logo-icon {
-  font-size: var(--text-xl);
-}
-
-.top-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.nav-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  min-height: var(--touch-target);
-  transition: all var(--duration-fast) var(--ease-out);
-}
-
-.nav-btn:hover,
-.nav-btn[aria-current='page'] {
-  color: var(--primary);
-  background: var(--surface-2);
 }
 
 /* ---- Main ---- */
@@ -190,10 +132,51 @@ main {
 /* ---- Footer ---- */
 footer {
   padding: var(--space-4);
-  text-align: center;
   border-top: 1px solid var(--border);
   color: var(--text-muted);
   font-size: var(--text-sm);
+}
+
+.app-footer__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.app-footer__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.app-footer__sep {
+  width: 4px;
+  height: 4px;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.app-footer__credit {
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.app-footer__credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.app-footer__credit a:hover {
+  color: var(--text);
 }
 
 .footer-link {
@@ -205,10 +188,77 @@ footer {
   cursor: pointer;
   padding: var(--space-2);
   min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 .footer-link:hover {
-  color: var(--primary);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* ---- Pixel language: shared utilities ---- */
+
+/* Small pixel-font label: eyebrows, metadata, section numbers, status text */
+.px-label {
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Square signal marker that precedes section headings */
+.px-marker {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--signal);
+  flex-shrink: 0;
+}
+
+/* Corner registration ticks — set --tick-color to recolour */
+.px-corners {
+  position: relative;
+}
+
+.px-corners::before {
+  --c: var(--tick-color, var(--border-strong));
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--tick) var(--pixel),
+    linear-gradient(var(--c), var(--c)) top left / var(--pixel) var(--tick),
+    linear-gradient(var(--c), var(--c)) top right / var(--tick) var(--pixel),
+    linear-gradient(var(--c), var(--c)) top right / var(--pixel) var(--tick),
+    linear-gradient(var(--c), var(--c)) bottom left / var(--tick) var(--pixel),
+    linear-gradient(var(--c), var(--c)) bottom left / var(--pixel) var(--tick),
+    linear-gradient(var(--c), var(--c)) bottom right / var(--tick) var(--pixel),
+    linear-gradient(var(--c), var(--c)) bottom right / var(--pixel) var(--tick);
+  background-repeat: no-repeat;
+}
+
+/* Segmented progress meter */
+.px-meter {
+  height: 14px;
+  padding: 2px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.px-meter__fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--meter-color, var(--signal)) 0 6px,
+    transparent 6px 8px
+  );
+  transition: width var(--duration-slow) var(--ease-pixel);
 }
 
 /* ---- Animations ---- */
@@ -220,6 +270,18 @@ footer {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pxSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pxBlink {
+  50% {
+    opacity: 0;
   }
 }
 
@@ -236,15 +298,50 @@ footer {
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-  .logo-text {
-    display: none;
-  }
-
-  .top-bar {
-    padding: var(--space-2) var(--space-3);
-  }
-
   main {
     padding: var(--space-4) var(--space-3);
   }
+
+  .app-footer__inner {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* ---- Auth loading ---- */
+.app-loading {
+  align-items: center;
+  justify-content: center;
+}
+
+.app-loading__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.app-loading__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  background: var(--signal);
+  color: var(--on-signal);
+  animation: pxDim 1.2s steps(1, end) infinite;
+}
+
+@keyframes pxDim {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---- Progress sync placeholder ---- */
+.app-syncing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
 }

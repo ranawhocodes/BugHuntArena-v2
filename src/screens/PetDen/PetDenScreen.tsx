@@ -5,7 +5,17 @@ import type { PetMood } from '../../components/PetCompanion';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Badge } from '../../components/Badge';
+import { PixelIcon } from '../../components/PixelIcon';
+import type { PixelIconName } from '../../components/PixelIcon';
+import type { PetState } from '../../storage/schema';
 import './PetDenScreen.css';
+
+const COSMETICS: { value: PetState['cosmetic']; label: string; icon: PixelIconName }[] = [
+  { value: null, label: 'None', icon: 'close' },
+  { value: 'hat', label: 'Wizard Hat', icon: 'tophat' },
+  { value: 'glasses', label: 'Cyber Visor', icon: 'glasses' },
+  { value: 'crown', label: 'Slayer Crown', icon: 'crown' },
+];
 
 export function PetDenScreen() {
   const { state, feedPet, strokePet, setPetCosmetic } = useAppState();
@@ -55,7 +65,7 @@ export function PetDenScreen() {
   return (
     <div className="bha-pet-den screen">
       <header className="bha-pet-den__header">
-        <Badge variant="accent" size="md">Companion Sanctuary</Badge>
+        <Badge variant="primary" size="md">Companion Sanctuary</Badge>
         <h1 className="bha-pet-den__title">The Pet Den</h1>
         <p className="bha-pet-den__subtitle">
           Feed, groom, and evolve your cyber companion as you conquer bugs in the Arena.
@@ -88,7 +98,10 @@ export function PetDenScreen() {
           <div className="bha-meter" aria-label={`Happiness: ${pet.happiness} percent`}>
             <div className="bha-meter__header">
               <span className="bha-meter__label">Happiness</span>
-              <span className="bha-meter__val">❤️ {pet.happiness}%</span>
+              <span className="bha-meter__val">
+                <PixelIcon name="heart" size={14} />
+                {pet.happiness}%
+              </span>
             </div>
             <div className="bha-meter__bar">
               <div
@@ -104,7 +117,7 @@ export function PetDenScreen() {
               variant="primary"
               size="md"
               onClick={handleFeed}
-              icon={<span aria-hidden="true">🍖</span>}
+              icon={<PixelIcon name="drumstick" />}
               disabled={bugBits < 5}
             >
               Feed (5 Bits)
@@ -113,7 +126,7 @@ export function PetDenScreen() {
               variant="secondary"
               size="md"
               onClick={handleStroke}
-              icon={<span aria-hidden="true">👋</span>}
+              icon={<PixelIcon name="hand" />}
               disabled={pet.strokesToday >= 3}
             >
               Stroke ({pet.strokesToday}/3)
@@ -127,46 +140,32 @@ export function PetDenScreen() {
         <h2 id="wardrobe-title" className="bha-wardrobe__title">
           Cosmetics & Accessories
         </h2>
-        <div className="bha-wardrobe__grid">
-          <Card
-            variant={pet.cosmetic === null ? 'highlight' : 'interactive'}
-            padding="sm"
-            className="bha-cosmetic-card"
-            onClick={() => setPetCosmetic(null)}
-          >
-            <span className="bha-cosmetic-card__icon" aria-hidden="true">🚫</span>
-            <span className="bha-cosmetic-card__name">None</span>
-          </Card>
-
-          <Card
-            variant={pet.cosmetic === 'hat' ? 'highlight' : 'interactive'}
-            padding="sm"
-            className="bha-cosmetic-card"
-            onClick={() => setPetCosmetic('hat')}
-          >
-            <span className="bha-cosmetic-card__icon" aria-hidden="true">🎩</span>
-            <span className="bha-cosmetic-card__name">Wizard Hat</span>
-          </Card>
-
-          <Card
-            variant={pet.cosmetic === 'glasses' ? 'highlight' : 'interactive'}
-            padding="sm"
-            className="bha-cosmetic-card"
-            onClick={() => setPetCosmetic('glasses')}
-          >
-            <span className="bha-cosmetic-card__icon" aria-hidden="true">👓</span>
-            <span className="bha-cosmetic-card__name">Cyber Visor</span>
-          </Card>
-
-          <Card
-            variant={pet.cosmetic === 'crown' ? 'highlight' : 'interactive'}
-            padding="sm"
-            className="bha-cosmetic-card"
-            onClick={() => setPetCosmetic('crown')}
-          >
-            <span className="bha-cosmetic-card__icon" aria-hidden="true">👑</span>
-            <span className="bha-cosmetic-card__name">Slayer Crown</span>
-          </Card>
+        <div className="bha-wardrobe__grid" role="radiogroup" aria-labelledby="wardrobe-title">
+          {COSMETICS.map((item) => {
+            const selected = pet.cosmetic === item.value;
+            const choose = () => setPetCosmetic(item.value);
+            return (
+              <Card
+                key={item.label}
+                variant={selected ? 'highlight' : 'interactive'}
+                padding="sm"
+                className="bha-cosmetic-card"
+                role="radio"
+                aria-checked={selected}
+                tabIndex={0}
+                onClick={choose}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    choose();
+                  }
+                }}
+              >
+                <PixelIcon name={item.icon} size={42} className="bha-cosmetic-card__icon" />
+                <span className="bha-cosmetic-card__name">{item.label}</span>
+              </Card>
+            );
+          })}
         </div>
       </section>
     </div>
