@@ -1,49 +1,66 @@
 # 🚀 LinkedIn Announcement Post Draft
 
-> **Instructions for Submission:**
-> Copy and paste the text below directly into your LinkedIn post. Be sure to replace any links with your live Vercel URL and tag any relevant hackathon organizers!
+> **Event:** PromptWars x The Prompt Arena  
+> **Organised by:** HACK2SKILL and Pondicherry University CSE Dept.  
+> **Instructions for Submission:**  
+> Copy and paste the text below directly into your LinkedIn post. Replace the Demo URL with your live deployed URL!
 
 ---
 
 ### Post Text:
 
-What if learning to debug code felt less like banging your head against a wall… and more like a tactical creature-hunting game? 🐛⚔️
+What if mastering debugging felt less like banging your head against syntax errors… and more like a tactical creature-hunting arena? 🐛⚔️
 
-When beginners learn Python or JavaScript, over 60% of their time is lost staring at obscure syntax errors and off-by-one loops. Most tutorials either dump overwhelming multi-file codebases or instantly spoil the answer.
+Thrilled to present **BugWug (Bug Hunt Arena)** — built for **PromptWars x The Prompt Arena**, organised by **HACK2SKILL** and the **Department of Computer Science & Engineering, Pondicherry University**! 🏆
 
-That's why I built **BugWug** — where AI crafts the bugs and you hunt them down! 🏟️
-
-Here is how BugWug tackles the 3 biggest challenges in beginner coding education:
-
-1️⃣ **Fair & Fun Gameplay:**
-Every program in the Arena has *exactly one bug* on a single line. Compare expected logs directly against broken terminal output, click the guilty line, and choose the tactical fix to capture named bug creatures (like *Sliceworm*, *Indexo*, and *Scopegeist*) into your collection!
-
-2️⃣ **Hints That Teach (Never Spoil):**
-A 3-tier escalating hint system guides the learner’s mental spotlight step-by-step:
-• Tier 1: Where to look (mental model)
-• Tier 2: Why it behaves unexpectedly
-• Tier 3: Concrete refactoring strategy — so the learner still solves the bug themselves!
-
-3️⃣ **Reasons to Return Tomorrow:**
-• 📅 **Daily Hunt:** 3 fresh daily bugs generated deterministically with Wordle-style shareable scorecards.
-• 🔥 **Streak Shields:** Earn freeze shields to protect your active streaks across busy days.
-• 🐾 **Living SVG Pet Companion:** A 100% parametric inline SVG pet (Fire Beetle, Byte Moth, or Glitch Hound) that reacts to your debugging victories, wears unlockable cosmetics, and evolves across 4 stages!
-• 🏆 **The Bug Dex:** Complete all 24 bug species and collect 10 Hunter achievement badges.
+Here is the breakdown of what I built and why it matters:
 
 ---
 
-### 🛠️ Behind the Tech:
-• **Framework:** React + TypeScript (strict mode) + Vite
-• **Styling:** Custom Vanilla CSS design system with Dark/Light themes
-• **AI Engine:** Google Gemini (`gemini-1.5-flash`) for dynamic bug generation + offline verified fallback bank
-• **Zero Asset Bloat:** 100% vector SVG — entire production JS bundle is only **28.9 KB gzipped**!
-• **Quality Gates:** 61 automated tests, **98.2% engine line coverage**, zero runtime dependencies beyond React.
+### 🔴 The Problem Statement
+When beginners learn Python or JavaScript, over **60% of their learning time** is spent frustrated by obscure error logs, off-by-one loops, and silent runtime bugs. Most traditional platforms either:
+1. Dump massive, intimidating multi-file codebases, or
+2. Instantly spoil the solution, depriving learners of developing true debugging intuition.
 
-Built end-to-end using **Google Antigravity**! 🚀
+---
 
-🎮 **Try it live here:** [https://bug-hunt-arena.vercel.app](https://bug-hunt-arena.vercel.app)
-📦 **Open Source GitHub Repo:** [https://github.com/ranawhocodes/BugHuntArena](https://github.com/ranawhocodes/BugHuntArena)
+### 🟢 The Solution: AI-Powered Gamified Debugging
+**BugWug** turns debugging into an interactive hunt where **AI generates the bugs, and the learner hunts them down**:
 
-Would love your feedback and thoughts! Which bug species did you catch first? 👇
+🎯 **Fair & Deterministic Gameplay:** Every code challenge has *exactly one bug* on a single line. Compare broken terminal logs against expected output, click the guilty line, and choose the tactical patch!
+🧠 **3-Tier Pedagogical Hinting (Prompt-Engineered):**
+   • *Tier 1:* Mental spotlight (where to look)
+   • *Tier 2:* Underlying mechanism (why it behaves unexpectedly)
+   • *Tier 3:* Concrete fix strategy — ensuring the learner still solves it themselves!
+👾 **The Bug Dex & Creature Lore:** Squashing bugs captures personality-rich glitch creatures (*Sliceworm*, *Indexo*, *Scopegeist*) into your collection.
+🐾 **Living Companion Pet:** A 100% parametric SVG pet (Fire Beetle, Byte Moth, Glitch Hound) that levels up across 4 evolutionary stages as you solve challenges.
+🔥 **Retention Loops:** Deterministic midnight Daily Hunts, Streak Shields, and Personalized Onboarding Tracks (New vs. Experienced).
 
-#BuildWithAI #Hackathon #WebDev #TypeScript #React #EdTech #Coding #Antigravity #GoogleAI #OpenSource
+---
+
+### 🤖 Prompt Engineering & AI Innovation
+Using **Google Gemini (`gemini-1.5-flash`) via Google AI Studio**, challenges are dynamically synthesized with:
+- Strict JSON schema constraints for guaranteed single-bug isolation.
+- Context-aware code length caps (<55 chars/line) for maximum readability.
+- Automatic distractor generation with pedagogical rationale.
+- 100% resilient fallback engine ensuring zero downtime even during offline/rate-limit scenarios.
+
+---
+
+### 🛠️ Tech Stack & Engineering Rigor
+• **Frontend:** React 19 + TypeScript (Strict) + Vite
+• **Backend & Serverless:** Vercel Serverless Functions + Gemini API Adapter
+• **Database & Auth:** Supabase (Auth + Row Level Security for multi-user save isolation)
+• **Design System:** Custom Vanilla CSS + Retro Pixel Icons (Zero asset bloat, ultra-fast load time)
+• **Testing & Quality:** 83 automated unit/integration tests with presubmit CI gates
+
+---
+
+🔗 **Live Demo:** [https://bug-hunt-arena.vercel.app](https://bug-hunt-arena.vercel.app) *(replace with your live URL)*  
+📦 **GitHub Repository:** https://github.com/ranawhocodes/BugHuntArena-v2  
+
+A huge thank you to **HACK2SKILL** and **Pondicherry University CSE Dept.** for organising **PromptWars x The Prompt Arena** and creating this platform for developers to innovate with AI!
+
+Would love to hear your feedback! Which bug species did you capture first? 👇
+
+#PromptWars #ThePromptArena #Hack2Skill #PondicherryUniversity #GoogleGemini #GoogleAI #BuildWithAI #PromptEngineering #EdTech #WebDev #TypeScript #React #OpenSource #Debugging

@@ -124,6 +124,30 @@ export function AuthScreen() {
           </button>
         </div>
 
+        {/* Demo Credentials */}
+        {mode === 'signin' && (
+          <div className="auth-demo-box">
+            <div className="auth-demo-box__header">
+              <span>⚡ Demo Access</span>
+              <button
+                type="button"
+                className="auth-demo-box__btn"
+                onClick={() => {
+                  setEmail('demo@bughuntarena.com');
+                  setPassword('demohunter123');
+                  setError(null);
+                }}
+              >
+                Auto-fill
+              </button>
+            </div>
+            <div className="auth-demo-box__creds">
+              <div><strong>Email:</strong> demo@bughuntarena.com</div>
+              <div><strong>Password:</strong> demohunter123</div>
+            </div>
+          </div>
+        )}
+
         {/* Form */}
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           {mode === 'signup' && (
